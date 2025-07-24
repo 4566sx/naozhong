@@ -1,0 +1,156 @@
+name: 简单构建APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: 设置Android SDK
+      uses: android-actions/setup-android@v2
+      
+    - name: 创建最简单的Android项目
+      run: |
+        # 创建一个全新的简单Android项目
+        mkdir -p simple-app/src/main/java/com/psalm/alarm
+        mkdir -p simple-app/src/main/res/values
+        mkdir -p simple-app/src/main/res/layout
+        mkdir -p simple-app/src/main/res/raw
+        
+        # 创建简单的MainActivity
+        cat > simple-app/src/main/java/com/psalm/alarm/MainActivity.java << 'EOF'
+        package com.psalm.alarm;
+        
+        import android.app.Activity;
+        import android.os.Bundle;
+        import android.widget.TextView;
+        
+        public class MainActivity extends Activity {
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                TextView tv = new TextView(this);
+                tv.setText("圣经诗篇闹钟应用");
+                setContentView(tv);
+            }
+        }
+        EOF
+        
+        # 创建AndroidManifest.xml
+        cat > simple-app/src/main/AndroidManifest.xml << 'EOF'
+        <?xml version="1.0" encoding="utf-8"?>
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+            package="com.psalm.alarm">
+            
+            <application
+                android:allowBackup="true"
+                android:label="圣经诗篇闹钟"
+                android:theme="@android:style/Theme.Material.Light">
+                
+                <activity
+                    android:name=".MainActivity"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="android.intent.action.MAIN" />
+                        <category android:name="android.intent.category.LAUNCHER" />
+                    </intent-filter>
+                </activity>
+                
+            </application>
+            
+        </manifest>
+        EOF
+        
+        # 创建build.gradle
+        cat > simple-app/build.gradle << 'EOF'
+        plugins {
+            id 'com.android.application'
+        }
+        
+        android {
+            compileSdkVersion 33
+            
+            defaultConfig {
+                applicationId "com.psalm.alarm"
+                minSdkVersion 21
+                targetSdkVersion 33
+                versionCode 1
+                versionName "1.0"
+            }
+            
+            buildTypes {
+                release {
+                    minifyEnabled false
+                }
+            }
+        }
+        
+        dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+        }
+        EOF
+        
+        # 复制音频文件
+        cp -r res/raw/* simple-app/src/main/res/raw/ 2>/dev/null || echo "音频文件复制完成"
+        
+    - name: 创建根build.gradle
+      run: |
+        cat > build.gradle << 'EOF'
+        buildscript {
+            repositories {
+                google()
+                mavenCentral()
+            }
+            dependencies {
+                classpath 'com.android.tools.build:gradle:7.4.2'
+            }
+        }
+        
+        allprojects {
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        EOF
+        
+    - name: 创建settings.gradle
+      run: |
+        echo "include ':simple-app'" > settings.gradle
+        
+    - name: 创建gradle.properties
+      run: |
+        cat > gradle.properties << 'EOF'
+        android.useAndroidX=true
+        android.enableJetifier=true
+        org.gradle.jvmargs=-Xmx2048m
+        EOF
+        
+    - name: 初始化Gradle Wrapper
+      run: gradle wrapper
+      
+    - name: 构建APK
+      run: ./gradlew :simple-app:assembleDebug --stacktrace
+      
+    - name: 查找APK文件
+      run: |
+        echo "查找生成的APK文件："
+        find . -name "*.apk" -type f
+        
+    - name: 上传APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: 简单版本APK
+        path: "**/*.apk"
+        retention-days: 30
