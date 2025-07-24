@@ -12,7 +12,6 @@
     <!-- Alarm Activity Theme -->
     <style name="AlarmTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">#1a1a1a</item>
-        <item name="android:windowKeepScreenOn">true</item>
     </style>
 
     <!-- Button Styles -->
