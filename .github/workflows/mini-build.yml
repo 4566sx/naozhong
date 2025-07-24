@@ -88,7 +88,7 @@ jobs:
                 mavenCentral()
             }
             dependencies {
-                classpath 'com.android.tools.build:gradle:7.4.2'
+                classpath 'com.android.tools.build:gradle:7.3.1'
             }
         }
         
@@ -112,6 +112,8 @@ jobs:
         org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
         android.useAndroidX=false
         android.enableJetifier=false
+        org.gradle.warning.mode=none
+        org.gradle.daemon=false
         EOF
         
         # 创建local.properties
@@ -130,7 +132,7 @@ jobs:
         
     - name: 初始化Gradle Wrapper
       run: |
-        gradle wrapper --gradle-version 7.6
+        gradle wrapper --gradle-version 7.5.1
         chmod +x gradlew
         
     - name: 构建Debug APK
