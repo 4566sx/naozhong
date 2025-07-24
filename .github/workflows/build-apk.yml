@@ -56,38 +56,110 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
           
-    - name: 创建 Gradle Wrapper
+    - name: 创建标准Android项目结构
       run: |
-        # 使用 Gradle 8.0 创建 wrapper
-        gradle wrapper --gradle-version 8.0
-        
-    - name: 赋予 gradlew 执行权限
-      run: chmod +x gradlew
-      
-    - name: 创建必要的目录结构
-      run: |
+        # 创建标准的Android项目目录结构
         mkdir -p app/src/main/java/com/biblealarm/app
         mkdir -p app/src/main/res/layout
         mkdir -p app/src/main/res/values
         mkdir -p app/src/main/res/drawable
         mkdir -p app/src/main/res/raw
         
-    - name: 移动源文件到正确位置
+        # 复制源文件到正确位置
+        cp *.java app/src/main/java/com/biblealarm/app/ 2>/dev/null || true
+        cp -r res/* app/src/main/res/ 2>/dev/null || true
+        cp AndroidManifest.xml app/src/main/ 2>/dev/null || true
+        
+    - name: 创建app模块的build.gradle
       run: |
-        # 移动 Java 源文件
-        mv *.java app/src/main/java/com/biblealarm/app/ 2>/dev/null || true
+        cat > app/build.gradle << 'EOF'
+        plugins {
+            id 'com.android.application'
+        }
         
-        # 移动资源文件
-        mv res/layout/* app/src/main/res/layout/ 2>/dev/null || true
-        mv res/values/* app/src/main/res/values/ 2>/dev/null || true
-        mv res/drawable/* app/src/main/res/drawable/ 2>/dev/null || true
-        mv res/raw/* app/src/main/res/raw/ 2>/dev/null || true
+        android {
+            namespace 'com.biblealarm.app'
+            compileSdk 34
+            
+            defaultConfig {
+                applicationId "com.biblealarm.app"
+                minSdk 21
+                targetSdk 34
+                versionCode 1
+                versionName "1.0"
+            }
+            
+            buildTypes {
+                release {
+                    minifyEnabled false
+                    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                }
+            }
+            
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+        }
         
-        # 移动 AndroidManifest.xml
-        mv AndroidManifest.xml app/src/main/ 2>/dev/null || true
+        dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+            implementation 'com.google.android.material:material:1.10.0'
+            implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+            implementation 'androidx.cardview:cardview:1.0.0'
+            implementation 'androidx.core:core:1.12.0'
+        }
+        EOF
         
-        # 创建 app 目录下的 build.gradle
-        mv build.gradle app/ 2>/dev/null || true
+    - name: 创建Gradle Wrapper文件
+      run: |
+        # 创建gradle wrapper目录
+        mkdir -p gradle/wrapper
+        
+        # 创建gradle-wrapper.properties
+        cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
+        distributionBase=GRADLE_USER_HOME
+        distributionPath=wrapper/dists
+        distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
+        zipStoreBase=GRADLE_USER_HOME
+        zipStorePath=wrapper/dists
+        EOF
+        
+        # 下载gradle wrapper jar
+        curl -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.0.0/gradle/wrapper/gradle-wrapper.jar
+        
+        # 创建gradlew脚本
+        cat > gradlew << 'EOF'
+        #!/bin/sh
+        APP_NAME="Gradle"
+        APP_BASE_NAME=`basename "$0"`
+        GRADLE_OPTS="-Xmx4g -Dfile.encoding=UTF-8"
+        JAVA_OPTS="$JAVA_OPTS $GRADLE_OPTS"
+        
+        # Resolve links: $0 may be a link
+        PRG="$0"
+        while [ -h "$PRG" ] ; do
+            ls=`ls -ld "$PRG"`
+            link=`expr "$ls" : '.*-> \(.*\)$'`
+            if expr "$link" : '/.*' > /dev/null; then
+                PRG="$link"
+            else
+                PRG=`dirname "$PRG"`"/$link"
+            fi
+        done
+        
+        SAVED="`pwd`"
+        cd "`dirname \"$PRG\"`/" >/dev/null
+        APP_HOME="`pwd -P`"
+        cd "$SAVED" >/dev/null
+        
+        CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+        
+        exec "$JAVA_HOME/bin/java" $JAVA_OPTS -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+        EOF
+        
+        # 设置执行权限
+        chmod +x gradlew
         
     - name: 创建项目根目录的 build.gradle
       run: |
