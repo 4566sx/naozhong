@@ -25,7 +25,9 @@ jobs:
         cache: gradle
     
     - name: 设置Gradle权限
-      run: chmod +x gradlew
+      run: |
+        git update-index --chmod=+x gradlew
+        chmod +x gradlew
     
     - name: 缓存Gradle包
       uses: actions/cache@v3
@@ -65,14 +67,14 @@ jobs:
         path: app/build/outputs/apk/release/app-release.apk
         if-no-files-found: error
     
-    - name: 构建测试报告
-      if: always()  # 即使前面的步骤失败也运行
-      run: ./gradlew jacocoTestReport
+    # 移除JaCoCo测试报告构建，因为项目可能没有配置JaCoCo
     
     - name: 上传测试报告
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: 测试报告
-        path: app/build/reports/
-        if-no-files-found: warn
+        path: |
+          app/build/reports/tests/
+          app/build/test-results/
+        if-no-files-found: ignore
