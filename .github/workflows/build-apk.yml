@@ -54,7 +54,7 @@ jobs:
                 mavenCentral()
             }
             dependencies {
-                classpath 'com.android.tools.build:gradle:8.1.4'
+                classpath 'com.android.tools.build:gradle:7.3.1'
             }
         }
         
@@ -139,21 +139,18 @@ jobs:
         android.nonTransitiveRClass=false
         android.defaults.buildfeatures.buildconfig=true
         android.nonFinalResIds=false
+        org.gradle.warning.mode=none
+        org.gradle.daemon=false
         EOF
         
     - name: 创建local.properties
       run: |
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         
-    - name: 赋予gradlew执行权限
+    - name: 创建Gradle Wrapper
       run: |
-        if [ -f "./gradlew" ]; then
-          chmod +x gradlew
-        else
-          echo "gradlew not found, using gradle wrapper task"
-          gradle wrapper
-          chmod +x gradlew
-        fi
+        gradle wrapper --gradle-version 7.5.1
+        chmod +x gradlew
         
     - name: 清理项目
       run: ./gradlew clean --stacktrace
