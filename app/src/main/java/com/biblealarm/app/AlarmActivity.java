@@ -1,10 +1,15 @@
 package com.biblealarm.app;
 
 import android.app.KeyguardManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.PowerManager;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -14,7 +19,8 @@ import java.io.IOException;
 
 public class AlarmActivity extends AppCompatActivity {
     
-    private MediaPlayer mediaPlayer;
+    private static final String TAG = "AlarmActivity";
+    
     private TextView psalmTitleText;
     private TextView psalmContentText;
     private Button stopButton;
@@ -28,6 +34,8 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        Log.d(TAG, "AlarmActivity启动");
+        
         // 设置在锁屏上显示
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
@@ -38,7 +46,7 @@ public class AlarmActivity extends AppCompatActivity {
         
         initViews();
         acquireWakeLock();
-        playPsalmAudio();
+        setupPsalmDisplay();
         displayPsalmContent();
     }
     
@@ -69,35 +77,10 @@ public class AlarmActivity extends AppCompatActivity {
         wakeLock.acquire(10 * 60 * 1000L); // 10分钟
     }
     
-    private void playPsalmAudio() {
+    private void setupPsalmDisplay() {
         psalmManager = new PsalmManager();
         currentPsalm = psalmManager.getTodayPsalm();
-        
-        try {
-            mediaPlayer = new MediaPlayer();
-            String audioPath = "android.resource://" + getPackageName() + "/" + 
-                             psalmManager.getPsalmAudioResource(currentPsalm);
-            mediaPlayer.setDataSource(this, android.net.Uri.parse(audioPath));
-            mediaPlayer.setLooping(true);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-            // 如果音频播放失败，使用默认铃声
-            playDefaultRingtone();
-        }
-    }
-    
-    private void playDefaultRingtone() {
-        try {
-            mediaPlayer = MediaPlayer.create(this, R.raw.default_psalm);
-            if (mediaPlayer != null) {
-                mediaPlayer.setLooping(true);
-                mediaPlayer.start();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Log.d(TAG, "显示今日诗篇: 第" + currentPsalm + "篇");
     }
     
     private void displayPsalmContent() {
@@ -109,22 +92,22 @@ public class AlarmActivity extends AppCompatActivity {
     }
     
     private void stopAlarm() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        Log.d(TAG, "用户点击停止闹钟");
+        
+        // 停止AlarmService
+        Intent serviceIntent = new Intent(this, AlarmService.class);
+        stopService(serviceIntent);
         
         releaseWakeLock();
         finish();
     }
     
     private void snoozeAlarm() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        Log.d(TAG, "用户点击贪睡闹钟");
+        
+        // 停止当前AlarmService
+        Intent serviceIntent = new Intent(this, AlarmService.class);
+        stopService(serviceIntent);
         
         // 设置5分钟后再次响铃
         AlarmUtils.setSnoozeAlarm(this, 5);
@@ -142,10 +125,12 @@ public class AlarmActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        Log.d(TAG, "AlarmActivity销毁");
+        
+        // 确保停止AlarmService
+        Intent serviceIntent = new Intent(this, AlarmService.class);
+        stopService(serviceIntent);
+        
         releaseWakeLock();
     }
     
