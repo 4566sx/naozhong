@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">圣经诗篇闹钟</string>
+    <string name="set_alarm">设置闹钟</string>
+    <string name="cancel_alarm">取消闹钟</string>
+    <string name="alarm_set">闹钟已设置</string>
+    <string name="alarm_cancelled">闹钟已取消</string>
+    <string name="today_psalm">今日诗篇：第 %d 篇</string>
+    <string name="alarm_status">闹钟状态</string>
+    <string name="no_alarm_set">未设置闹钟</string>
+    <string name="alarm_time_set">闹钟时间：%s</string>
+    <string name="psalm_description">每天随机播放一篇诗篇录音作为闹钟铃声</string>
+    <string name="alarm_ringing">🔔 闹钟响了</string>
+    <string name="stop_alarm">停止闹钟</string>
+    <string name="snooze_alarm">贪睡 5 分钟</string>
+    <string name="playing_psalm">正在播放今日诗篇录音...</string>
+    <string name="psalm_title">诗篇 第%d篇</string>
+    <string name="default_psalm_content">耶和华是我的牧者，我必不致缺乏。他使我躺卧在青草地上，领我在可安歇的水边。</string>
+</resources>
