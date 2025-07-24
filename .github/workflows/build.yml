@@ -24,10 +24,10 @@ jobs:
         distribution: 'temurin'
         cache: gradle
     
-    - name: 设置Gradle权限
-      run: |
-        git update-index --chmod=+x gradlew
-        chmod +x gradlew
+    - name: 设置Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: 8.2
     
     - name: 缓存Gradle包
       uses: actions/cache@v3
@@ -40,10 +40,10 @@ jobs:
           ${{ runner.os }}-gradle-
     
     - name: 构建Debug APK
-      run: ./gradlew assembleDebug
+      run: gradle assembleDebug
     
     - name: 运行单元测试
-      run: ./gradlew testDebugUnitTest
+      run: gradle testDebugUnitTest
     
     - name: 上传Debug APK
       uses: actions/upload-artifact@v4
@@ -58,7 +58,7 @@ jobs:
         echo "storePassword=android" >> keystore.properties
         echo "keyAlias=androiddebugkey" >> keystore.properties
         echo "keyPassword=android" >> keystore.properties
-        ./gradlew assembleRelease
+        gradle assembleRelease
       
     - name: 上传Release APK
       uses: actions/upload-artifact@v4
