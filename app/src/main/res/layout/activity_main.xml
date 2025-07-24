@@ -106,7 +106,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="取消闹钟"
-                    android:textColor="white"
+                    android:textColor="@android:color/white"
                     android:background="#e74c3c"
                     android:layout_marginStart="8dp"
                     android:padding="12dp" />
