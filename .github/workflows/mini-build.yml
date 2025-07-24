@@ -1,0 +1,169 @@
+name: 构建迷你版APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置JDK 11
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: 创建迷你Android项目
+      run: |
+        echo "创建迷你版Android项目结构..."
+        
+        # 创建项目目录
+        mkdir -p mini-app/src/main/java/com/psalm/alarm
+        mkdir -p mini-app/src/main/res/values
+        
+        # 复制Java源文件
+        cp MiniAlarmApp.java mini-app/src/main/java/com/psalm/alarm/
+        
+        # 复制AndroidManifest.xml
+        cp mini-manifest.xml mini-app/src/main/AndroidManifest.xml
+        
+        # 创建strings.xml
+        mkdir -p mini-app/src/main/res/values
+        cat > mini-app/src/main/res/values/strings.xml << 'EOF'
+        <?xml version="1.0" encoding="utf-8"?>
+        <resources>
+            <string name="app_name">圣经诗篇闹钟</string>
+        </resources>
+        EOF
+        
+        # 创建app的build.gradle
+        cat > mini-app/build.gradle << 'EOF'
+        plugins {
+            id 'com.android.application'
+        }
+        
+        android {
+            compileSdkVersion 33
+            
+            defaultConfig {
+                applicationId "com.psalm.alarm"
+                minSdkVersion 21
+                targetSdkVersion 33
+                versionCode 1
+                versionName "1.0"
+            }
+            
+            buildTypes {
+                release {
+                    minifyEnabled false
+                }
+                debug {
+                    minifyEnabled false
+                    debuggable true
+                }
+            }
+            
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+        }
+        
+        dependencies {
+            // 不使用任何外部依赖，只使用Android SDK自带的
+        }
+        EOF
+        
+    - name: 创建根目录配置文件
+      run: |
+        # 创建根build.gradle
+        cat > build.gradle << 'EOF'
+        buildscript {
+            repositories {
+                google()
+                mavenCentral()
+            }
+            dependencies {
+                classpath 'com.android.tools.build:gradle:7.4.2'
+            }
+        }
+        
+        allprojects {
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        
+        task clean(type: Delete) {
+            delete rootProject.buildDir
+        }
+        EOF
+        
+        # 创建settings.gradle
+        echo "include ':mini-app'" > settings.gradle
+        
+        # 创建gradle.properties
+        cat > gradle.properties << 'EOF'
+        org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+        android.useAndroidX=false
+        android.enableJetifier=false
+        EOF
+        
+        # 创建local.properties
+        echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
+        
+    - name: 显示项目结构
+      run: |
+        echo "=== 项目结构 ==="
+        find . -type f -name "*.java" -o -name "*.xml" -o -name "*.gradle" | head -20
+        
+        echo "=== Java文件内容检查 ==="
+        head -10 mini-app/src/main/java/com/psalm/alarm/MiniAlarmApp.java
+        
+        echo "=== Manifest文件检查 ==="
+        cat mini-app/src/main/AndroidManifest.xml
+        
+    - name: 初始化Gradle Wrapper
+      run: |
+        gradle wrapper --gradle-version 7.6
+        chmod +x gradlew
+        
+    - name: 构建Debug APK
+      run: |
+        echo "开始构建APK..."
+        ./gradlew :mini-app:assembleDebug --stacktrace --info --no-daemon
+        
+    - name: 查找生成的APK
+      run: |
+        echo "=== 查找APK文件 ==="
+        find . -name "*.apk" -type f -exec ls -la {} \;
+        
+        echo "=== 构建输出目录 ==="
+        ls -la mini-app/build/outputs/ || echo "outputs目录不存在"
+        ls -la mini-app/build/outputs/apk/ || echo "apk目录不存在"  
+        ls -la mini-app/build/outputs/apk/debug/ || echo "debug目录不存在"
+        
+    - name: 上传APK文件
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: 迷你版圣经诗篇闹钟APK
+        path: |
+          mini-app/build/outputs/apk/debug/*.apk
+          **/*.apk
+        retention-days: 30
+        
+    - name: 上传构建日志（如果失败）
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: mini-build-logs
+        path: |
+          mini-app/build/reports/
+          build/reports/
+        retention-days: 7
