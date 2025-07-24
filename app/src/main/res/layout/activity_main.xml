@@ -95,7 +95,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="设置闹钟"
-                    android:textColor="white"
+            android:textColor="@android:color/white"
                     android:background="#3498db"
                     android:layout_marginEnd="8dp"
                     android:padding="12dp" />
