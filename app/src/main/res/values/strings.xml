@@ -1,19 +1,119 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">圣经诗篇闹钟</string>
-    <string name="set_alarm">设置闹钟</string>
-    <string name="cancel_alarm">取消闹钟</string>
-    <string name="alarm_set">闹钟已设置</string>
-    <string name="alarm_cancelled">闹钟已取消</string>
-    <string name="today_psalm">今日诗篇：第 %d 篇</string>
-    <string name="alarm_status">闹钟状态</string>
+    <string name="app_name">圣经闹钟</string>
+    
+    <!-- 主界面 -->
+    <string name="home_title">圣经闹钟</string>
+    <string name="today_psalm">今日诗篇</string>
+    <string name="psalm_number">诗篇 %d</string>
+    <string name="next_alarm">下个闹钟</string>
     <string name="no_alarm_set">未设置闹钟</string>
-    <string name="alarm_time_set">闹钟时间：%s</string>
-    <string name="psalm_description">每天随机播放一篇诗篇录音作为闹钟铃声</string>
-    <string name="alarm_ringing">🔔 闹钟响了</string>
-    <string name="stop_alarm">停止闹钟</string>
-    <string name="snooze_alarm">贪睡 5 分钟</string>
-    <string name="playing_psalm">正在播放今日诗篇录音...</string>
-    <string name="psalm_title">诗篇 第%d篇</string>
-    <string name="default_psalm_content">耶和华是我的牧者，我必不致缺乏。他使我躺卧在青草地上，领我在可安歇的水边。</string>
+    
+    <!-- 播放控制 -->
+    <string name="play">播放</string>
+    <string name="pause">暂停</string>
+    <string name="stop">停止</string>
+    <string name="previous">上一篇</string>
+    <string name="next">下一篇</string>
+    <string name="volume">音量</string>
+    
+    <!-- 闹钟管理 -->
+    <string name="alarms">闹钟</string>
+    <string name="add_alarm">添加闹钟</string>
+    <string name="edit_alarm">编辑闹钟</string>
+    <string name="delete_alarm">删除闹钟</string>
+    <string name="alarm_time">闹钟时间</string>
+    <string name="alarm_label">闹钟标签</string>
+    <string name="repeat">重复</string>
+    <string name="snooze">贪睡</string>
+    <string name="vibration">震动</string>
+    
+    <!-- 重复选项 -->
+    <string name="once">仅一次</string>
+    <string name="daily">每天</string>
+    <string name="weekdays">工作日</string>
+    <string name="weekends">周末</string>
+    <string name="custom">自定义</string>
+    
+    <!-- 星期 -->
+    <string name="monday">周一</string>
+    <string name="tuesday">周二</string>
+    <string name="wednesday">周三</string>
+    <string name="thursday">周四</string>
+    <string name="friday">周五</string>
+    <string name="saturday">周六</string>
+    <string name="sunday">周日</string>
+    
+    <!-- 设置 -->
+    <string name="settings">设置</string>
+    <string name="audio_settings">音频设置</string>
+    <string name="audio_folder">音频文件夹</string>
+    <string name="select_folder">选择文件夹</string>
+    <string name="scan_audio_files">扫描音频文件</string>
+    <string name="snooze_duration">贪睡时长</string>
+    <string name="default_volume">默认音量</string>
+    
+    <!-- 权限 -->
+    <string name="permissions">权限管理</string>
+    <string name="alarm_permission">闹钟权限</string>
+    <string name="notification_permission">通知权限</string>
+    <string name="audio_permission">音频权限</string>
+    <string name="permission_granted">已授权</string>
+    <string name="permission_denied">未授权</string>
+    <string name="request_permission">请求权限</string>
+    
+    <!-- 闹钟触发 -->
+    <string name="alarm_triggered">闹钟响起</string>
+    <string name="dismiss">关闭</string>
+    <string name="snooze_alarm">贪睡</string>
+    <string name="snooze_minutes">%d 分钟后再次提醒</string>
+    
+    <!-- 通知 -->
+    <string name="alarm_notification_channel">闹钟通知</string>
+    <string name="alarm_notification_description">闹钟提醒通知</string>
+    <string name="upcoming_alarm">即将响起的闹钟</string>
+    
+    <!-- 错误信息 -->
+    <string name="error_audio_not_found">未找到音频文件</string>
+    <string name="error_permission_required">需要相关权限才能正常使用</string>
+    <string name="error_alarm_set_failed">设置闹钟失败</string>
+    <string name="error_audio_play_failed">播放音频失败</string>
+    
+    <!-- 成功信息 -->
+    <string name="alarm_set_success">闹钟设置成功</string>
+    <string name="alarm_deleted_success">闹钟删除成功</string>
+    <string name="audio_scan_complete">音频扫描完成</string>
+    
+    <!-- 按钮 -->
+    <string name="save">保存</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+    <string name="confirm">确认</string>
+    <string name="ok">确定</string>
+    <string name="back">返回</string>
+    
+    <!-- 关于 -->
+    <string name="about">关于</string>
+    <string name="version">版本</string>
+    <string name="app_description">一款专为基督徒设计的闹钟应用，每天随机播放诗篇作为闹钟铃声，帮助您以神的话语开始新的一天。</string>
+    
+    <!-- 时间格式 -->
+    <string name="time_format_24h">24小时制</string>
+    <string name="time_format_12h">12小时制</string>
+    <string name="am">上午</string>
+    <string name="pm">下午</string>
+    
+    <!-- 音频状态 -->
+    <string name="audio_loading">加载中...</string>
+    <string name="audio_ready">准备就绪</string>
+    <string name="audio_playing">正在播放</string>
+    <string name="audio_paused">已暂停</string>
+    <string name="audio_stopped">已停止</string>
+    
+    <!-- 诗篇相关 -->
+    <string name="psalm_title">诗篇标题</string>
+    <string name="random_psalm">随机诗篇</string>
+    <string name="select_psalm">选择诗篇</string>
+    <string name="psalm_not_available">该诗篇音频不可用</string>
+    <string name="total_psalms">共 %d 篇诗篇</string>
+    <string name="available_psalms">可用 %d 篇</string>
 </resources>
