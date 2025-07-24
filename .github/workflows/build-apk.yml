@@ -22,146 +22,30 @@ jobs:
         distribution: 'temurin'
         
     - name: 设置 Android SDK
-      run: |
-        # 设置 Android SDK 环境变量
-        export ANDROID_HOME=$HOME/android-sdk
-        export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-        export PATH=$PATH:$ANDROID_HOME/platform-tools
-        
-        # 创建 SDK 目录
-        mkdir -p $ANDROID_HOME/cmdline-tools
-        
-        # 下载并安装 Android SDK Command Line Tools
-        cd $ANDROID_HOME/cmdline-tools
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-        unzip -q commandlinetools-linux-9477386_latest.zip
-        mv cmdline-tools latest
-        
-        # 接受许可证并安装必要的 SDK 组件
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-        
-        # 设置环境变量到 GitHub Actions 环境
-        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-        echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
-        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
-        
-    - name: 缓存 Gradle 依赖
-      uses: actions/cache@v4
+      uses: android-actions/setup-android@v3
       with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
-    - name: 创建标准Android项目结构
-      run: |
-        # 创建标准的Android项目目录结构
-        mkdir -p app/src/main/java/com/biblealarm/app
-        mkdir -p app/src/main/res/layout
-        mkdir -p app/src/main/res/values
-        mkdir -p app/src/main/res/drawable
-        mkdir -p app/src/main/res/raw
+        api-level: 34
+        build-tools: 34.0.0
         
-        # 复制源文件到正确位置
-        cp *.java app/src/main/java/com/biblealarm/app/ 2>/dev/null || true
+    - name: 创建完整的Android项目结构
+      run: |
+        # 创建标准Android项目目录
+        mkdir -p app/src/main/java/com/biblealarm/app
+        mkdir -p app/src/main/res
+        
+        # 复制所有资源文件
         cp -r res/* app/src/main/res/ 2>/dev/null || true
+        
+        # 复制Java源文件
+        cp *.java app/src/main/java/com/biblealarm/app/ 2>/dev/null || true
+        
+        # 复制AndroidManifest.xml
         cp AndroidManifest.xml app/src/main/ 2>/dev/null || true
         
-    - name: 创建app模块的build.gradle
-      run: |
-        cat > app/build.gradle << 'EOF'
-        plugins {
-            id 'com.android.application'
-        }
+        # 复制proguard规则
+        cp proguard-rules.pro app/ 2>/dev/null || true
         
-        android {
-            namespace 'com.biblealarm.app'
-            compileSdk 34
-            
-            defaultConfig {
-                applicationId "com.biblealarm.app"
-                minSdk 21
-                targetSdk 34
-                versionCode 1
-                versionName "1.0"
-            }
-            
-            buildTypes {
-                release {
-                    minifyEnabled false
-                    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-                }
-            }
-            
-            compileOptions {
-                sourceCompatibility JavaVersion.VERSION_1_8
-                targetCompatibility JavaVersion.VERSION_1_8
-            }
-        }
-        
-        dependencies {
-            implementation 'androidx.appcompat:appcompat:1.6.1'
-            implementation 'com.google.android.material:material:1.10.0'
-            implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-            implementation 'androidx.cardview:cardview:1.0.0'
-            implementation 'androidx.core:core:1.12.0'
-        }
-        EOF
-        
-    - name: 创建Gradle Wrapper文件
-      run: |
-        # 创建gradle wrapper目录
-        mkdir -p gradle/wrapper
-        
-        # 创建gradle-wrapper.properties
-        cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
-        distributionBase=GRADLE_USER_HOME
-        distributionPath=wrapper/dists
-        distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
-        zipStoreBase=GRADLE_USER_HOME
-        zipStorePath=wrapper/dists
-        EOF
-        
-        # 下载gradle wrapper jar
-        curl -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.0.0/gradle/wrapper/gradle-wrapper.jar
-        
-        # 创建gradlew脚本
-        cat > gradlew << 'EOF'
-        #!/bin/sh
-        APP_NAME="Gradle"
-        APP_BASE_NAME=`basename "$0"`
-        GRADLE_OPTS="-Xmx4g -Dfile.encoding=UTF-8"
-        JAVA_OPTS="$JAVA_OPTS $GRADLE_OPTS"
-        
-        # Resolve links: $0 may be a link
-        PRG="$0"
-        while [ -h "$PRG" ] ; do
-            ls=`ls -ld "$PRG"`
-            link=`expr "$ls" : '.*-> \(.*\)$'`
-            if expr "$link" : '/.*' > /dev/null; then
-                PRG="$link"
-            else
-                PRG=`dirname "$PRG"`"/$link"
-            fi
-        done
-        
-        SAVED="`pwd`"
-        cd "`dirname \"$PRG\"`/" >/dev/null
-        APP_HOME="`pwd -P`"
-        cd "$SAVED" >/dev/null
-        
-        CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
-        
-        exec "$JAVA_HOME/bin/java" $JAVA_OPTS -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
-        EOF
-        
-        # 设置执行权限
-        chmod +x gradlew
-        
-    - name: 创建项目根目录的 build.gradle
+    - name: 创建根目录build.gradle
       run: |
         cat > build.gradle << 'EOF'
         buildscript {
@@ -186,43 +70,122 @@ jobs:
         }
         EOF
         
-    - name: 创建 settings.gradle
+    - name: 创建app模块build.gradle
+      run: |
+        cat > app/build.gradle << 'EOF'
+        plugins {
+            id 'com.android.application'
+        }
+        
+        android {
+            namespace 'com.biblealarm.app'
+            compileSdk 34
+            
+            defaultConfig {
+                applicationId "com.biblealarm.app"
+                minSdk 21
+                targetSdk 34
+                versionCode 1
+                versionName "1.0"
+                testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+            }
+            
+            buildTypes {
+                release {
+                    minifyEnabled false
+                    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                }
+                debug {
+                    minifyEnabled false
+                    debuggable true
+                }
+            }
+            
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+            
+            packagingOptions {
+                resources {
+                    excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+                }
+            }
+        }
+        
+        dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+            implementation 'com.google.android.material:material:1.10.0'
+            implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+            implementation 'androidx.cardview:cardview:1.0.0'
+            implementation 'androidx.core:core:1.12.0'
+            
+            testImplementation 'junit:junit:4.13.2'
+            androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+            androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+        }
+        EOF
+        
+    - name: 创建settings.gradle
       run: |
         echo "include ':app'" > settings.gradle
         
-    - name: 创建 gradle.properties
+    - name: 创建gradle.properties
       run: |
         cat > gradle.properties << 'EOF'
+        org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8
         android.useAndroidX=true
         android.enableJetifier=true
-        org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8
-        org.gradle.parallel=true
-        org.gradle.caching=true
         android.nonTransitiveRClass=false
         android.defaults.buildfeatures.buildconfig=true
         android.nonFinalResIds=false
         EOF
         
-    - name: 创建本地属性文件
+    - name: 创建local.properties
       run: |
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         
-    - name: 构建 Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+    - name: 赋予gradlew执行权限
+      run: |
+        if [ -f "./gradlew" ]; then
+          chmod +x gradlew
+        else
+          echo "gradlew not found, using gradle wrapper task"
+          gradle wrapper
+          chmod +x gradlew
+        fi
+        
+    - name: 清理项目
+      run: ./gradlew clean --stacktrace
       
-    - name: 上传 APK 文件
+    - name: 构建Debug APK
+      run: ./gradlew assembleDebug --stacktrace --info
+      
+    - name: 列出构建输出
+      run: |
+        echo "=== 查找APK文件 ==="
+        find . -name "*.apk" -type f
+        echo "=== app/build目录结构 ==="
+        ls -la app/build/outputs/ || echo "outputs目录不存在"
+        ls -la app/build/outputs/apk/ || echo "apk目录不存在"
+        ls -la app/build/outputs/apk/debug/ || echo "debug目录不存在"
+        
+    - name: 上传APK文件
       uses: actions/upload-artifact@v4
+      if: success()
       with:
         name: 圣经诗篇闹钟-debug-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: |
+          app/build/outputs/apk/debug/*.apk
+          **/*.apk
+        retention-days: 30
         
-    - name: 创建发布版本（如果是标签推送）
-      if: startsWith(github.ref, 'refs/tags/')
-      run: ./gradlew assembleRelease --stacktrace
-      
-    - name: 上传发布版 APK
-      if: startsWith(github.ref, 'refs/tags/')
+    - name: 上传构建日志（如果失败）
       uses: actions/upload-artifact@v4
+      if: failure()
       with:
-        name: 圣经诗篇闹钟-release-apk
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
+        name: build-logs
+        path: |
+          app/build/reports/
+          build/reports/
+        retention-days: 7
