@@ -23,12 +23,10 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): BibleAlarmDatabase {
         return Room.databaseBuilder(
-            context.applicationContext,
+            context,
             BibleAlarmDatabase::class.java,
-            BibleAlarmDatabase.DATABASE_NAME
-        )
-        .fallbackToDestructiveMigration()
-        .build()
+            "bible_alarm_database"
+        ).build()
     }
     
     @Provides
