@@ -1,15 +1,9 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
     id("kotlin-parcelize")
-}
-
-// KAPT配置
-kapt {
-    correctErrorTypes = true
-    useBuildCache = true
 }
 
 android {
@@ -86,17 +80,17 @@ dependencies {
     // Room Database
     implementation("androidx.room:room-runtime:2.5.0")
     implementation("androidx.room:room-ktx:2.5.0")
-    kapt("androidx.room:room-compiler:2.5.0")
+    ksp("androidx.room:room-compiler:2.5.0")
     
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.8.1")
     
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.44")
-    kapt("com.google.dagger:hilt-compiler:2.44")
+    ksp("com.google.dagger:hilt-compiler:2.44")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation("androidx.hilt:hilt-work:1.0.0")
-    kapt("androidx.hilt:hilt-compiler:1.0.0")
+    ksp("androidx.hilt:hilt-compiler:1.0.0")
     
     // Media Player
     implementation("androidx.media3:media3-exoplayer:1.2.1")
