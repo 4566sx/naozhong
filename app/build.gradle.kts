@@ -1,15 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
-    id("dagger.hilt.android.plugin")
     id("kotlin-parcelize")
-}
-
-// KAPT配置
-kapt {
-    correctErrorTypes = true
-    useBuildCache = true
 }
 
 android {
@@ -40,12 +32,12 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     
     buildFeatures {
@@ -83,18 +75,14 @@ dependencies {
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     
-    // Room Database - 简化版本
+    // Room Database - 无需KAPT版本
     implementation("androidx.room:room-runtime:2.5.0")
     implementation("androidx.room:room-ktx:2.5.0")
-    kapt("androidx.room:room-compiler:2.5.0")
     
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.8.1")
     
-    // Hilt Dependency Injection - 简化版本
-    implementation("com.google.dagger:hilt-android:2.44")
-    kapt("com.google.dagger:hilt-compiler:2.44")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    // 移除Hilt依赖，使用简单的手动依赖注入
     
     // Media Player
     implementation("androidx.media3:media3-exoplayer:1.2.1")
