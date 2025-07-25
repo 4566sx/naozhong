@@ -6,6 +6,12 @@ plugins {
     id("kotlin-parcelize")
 }
 
+// KAPT配置
+kapt {
+    correctErrorTypes = true
+    useBuildCache = true
+}
+
 android {
     namespace = "com.biblealarm.app"
     compileSdk = 35
@@ -91,6 +97,9 @@ dependencies {
     implementation("androidx.hilt:hilt-work:1.1.0")
     kapt("androidx.hilt:hilt-compiler:1.1.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    
+    // 添加缺失的注解处理器依赖
+    kapt("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.5.0")
     
     // Media Player
     implementation("androidx.media3:media3-exoplayer:1.2.1")
