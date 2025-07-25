@@ -17,10 +17,10 @@ jobs:
       with:
         fetch-depth: 0  # 获取完整历史记录以便正确生成版本号
     
-    - name: 设置JDK 11并缓存Gradle
+    - name: 设置JDK 17并缓存Gradle
       uses: actions/setup-java@v4
       with:
-        java-version: '11'
+        java-version: '17'
         distribution: 'temurin'
         cache: 'gradle'
     
