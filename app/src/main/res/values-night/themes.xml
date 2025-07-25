@@ -18,20 +18,5 @@
         <item name="colorOnTertiaryContainer">@color/md_theme_dark_onTertiaryContainer</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimary</item>
-        <!-- Customize your theme here. -->
-    </style>
-
-    <style name="Theme.BibleAlarm.AlarmScreen" parent="Theme.BibleAlarm">
-        <item name="android:windowShowWallpaper">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowSoftInputMode">stateUnchanged</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:showWhenLocked">true</item>
-        <item name="android:turnScreenOn">true</item>
     </style>
 </resources>
